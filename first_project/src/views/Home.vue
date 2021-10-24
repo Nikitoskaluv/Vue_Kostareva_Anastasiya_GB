@@ -4,52 +4,133 @@
     <input v-model.number="operand2" type="number" />
     = {{ result }}
     <br />
-    <button @click="plusFunction(operand1, operand2)">+</button>
-    <button @click="minusFunction(operand1, operand2)">-</button>
-    <button @click="divideFunction(operand1, operand2)">/</button>
-    <button @click="multiplyFunction(operand1, operand2)">*</button>
-    <button @click="exponentFunction(operand1, operand2)">^</button>
-    <p id="error" v-if="visible">На ноль делить нельзя</p>
+
+    <button
+      v-for="(operator, idx) in operators"
+      :key="idx"
+      :title="operator"
+      @click="calculate(operator)"
+    >
+      {{ operator }}
+    </button>
+
+    <div class="error" v-if="error">{{ error }}</div>
+    <br />
+    <input type="checkbox" id="checkbox" v-model="isChecked" />
+    <label for="checkbox">Отобразить клавиатуру</label>
+    <div class="keypad" v-show="isChecked">
+      <button
+        v-for="keyButton in keysCollection"
+        :key="keyButton"
+        :value="keyButton"
+        @click="getNumber($event)"
+      >
+        {{ keyButton }}
+      </button>
+      <button v-html="backSpace" @click="deleteNumber()">
+        {{ backSpace }}
+      </button>
+      <br />
+
+      <input
+        type="radio"
+        v-model="choose"
+        name="radioChoose"
+        value="operand1"
+      />
+      <label for="firstInput">Первый операнд</label>
+      <input
+        type="radio"
+        v-model="choose"
+        name="radioChoose"
+        value="operand2"
+      />
+      <label for="secondInput">Второй операнд</label>
+    </div>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-// import HelloWorld from "@/components/HelloWorld.vue";
-
 export default {
   name: "Home",
-  components: {
-    // HelloWorld,
-  },
   data() {
     return {
       operand1: 0,
       operand2: 0,
+      operators: ["+", "-", "/", "*", "^"],
       result: 0,
-      visible: false,
+      error: "",
+      keysCollection: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0],
+      backSpace: "&#8592",
+      isChecked: false,
+      choose: "",
     };
   },
   methods: {
-    plusFunction(opr1, opr2) {
-      this.result = opr1 + opr2;
+    getNumber(event) {
+      if (this.choose === "operand1") {
+        this.operand1 += event.target.value;
+        this.operand1 = parseInt(this.operand1);
+      } else if (this.choose === "operand2") {
+        this.operand2 += event.target.value;
+        this.operand2 = parseInt(this.operand2);
+      }
     },
-    minusFunction(opr1, opr2) {
-      this.result = opr1 - opr2;
+    calculateOperand(text) {
+      return parseInt(text.length > 1 ? text.slice(0, -1) : 0);
     },
-    divideFunction(opr1, opr2) {
-      if (opr2 === 0) {
-        this.visible = true;
-        this.isDisabled = true;
+
+    deleteNumber() {
+      if (this.choose === "operand1") {
+        this.operand1 = this.calculateOperand(String(this.operand1));
+      } else if (this.choose === "operand2") {
+        this.operand2 = this.calculateOperand(String(this.operand2));
+      }
+    },
+
+    calculate(operation = "+") {
+      this.error = "";
+      switch (operation) {
+        case "+":
+          this.plusFunction();
+          break;
+        case "-":
+          this.minusFunction();
+          break;
+        case "/":
+          this.divideFunction();
+          break;
+        case "*":
+          this.multiplyFunction();
+          break;
+        case "^":
+          this.exponentFunction();
+          break;
+      }
+    },
+    showKeybord() {
+      this.isChecked ? (this.showKeybord = true) : (this.showKeybord = false);
+    },
+    plusFunction() {
+      this.result = this.operand1 + this.operand2;
+    },
+    minusFunction() {
+      this.result = this.operand1 - this.operand2;
+    },
+    divideFunction() {
+      let { operand2 } = this;
+      if (operand2 === 0) {
+        this.error = "На ноль делить нельзя";
         return;
       }
-      this.result = opr1 / opr2;
+      this.result = this.operand1 / this.operand2;
+      this.error = "";
     },
-    multiplyFunction(opr1, opr2) {
-      this.result = opr1 * opr2;
+    multiplyFunction() {
+      this.result = this.operand1 * this.operand2;
     },
-    exponentFunction(opr1, opr2) {
-      this.result = Math.pow(opr1, opr2);
+    exponentFunction() {
+      this.result = Math.pow(this.operand1, this.operand2);
     },
   },
 };
