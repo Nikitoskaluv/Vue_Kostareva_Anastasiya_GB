@@ -1,16 +1,16 @@
 <template>
   <div class="pagination_container">
-    <button type="button" @click="onClick(cur - 1)">&#10094;</button>
+    <button type="button" @click="onClick(currentPage - 1)">&#10094;</button>
     <button
       type="button"
-      :class="{ active: cur === item }"
-      v-for="item in amount"
+      :class="{ active: currentPage === item - 1 }"
+      v-for="item in pageCount"
       :key="item"
-      @click="onClick(item)"
+      @click="onClick(item - 1)"
     >
       {{ item }}
     </button>
-    <button type="button" @click="onClick(cur + 1)">&#10095;</button>
+    <button type="button" @click="onClick(currentPage + 1)">&#10095;</button>
   </div>
 </template>
 
@@ -19,26 +19,22 @@
 export default {
   name: "PaginationComp",
   props: {
-    length: Number,
-    n: Number,
-    cur: Number,
+    pageCount: Number,
+    pageSize: Number,
+    currentPage: Number,
   },
   data() {
     return {};
   },
   methods: {
     onClick(p) {
-      if (p < 1 || p > this.amount) {
+      if (p < 0 || p >= this.pageCount) {
         return;
       }
       this.$emit("paginate", p);
     },
   },
-  computed: {
-    amount() {
-      return Math.ceil(this.length / this.n);
-    },
-  },
+  computed: {},
 };
 </script>
 

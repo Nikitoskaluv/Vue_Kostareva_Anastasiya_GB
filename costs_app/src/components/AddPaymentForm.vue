@@ -1,13 +1,17 @@
 <template>
   <div class="form" v-if="visible">
-    <input placeholder="Value" v-model="value" />
+    <input placeholder="Value" type="number" v-model="value" />
     <input placeholder="Category" v-model="category" />
+    <select-category v-model="category" />
     <input placeholder="Date" v-model="date" />
     <button @click="onSave">Save</button>
   </div>
 </template>
 <script>
+import SelectCategory from "./SelectCategory.vue";
+
 export default {
+  components: { SelectCategory },
   name: "AddPaymentForm",
   props: ["visible"],
   data() {
@@ -15,7 +19,6 @@ export default {
       value: "",
       category: "",
       date: "",
-      
     };
   },
   computed: {
@@ -27,10 +30,11 @@ export default {
       return `${d}.${m}.${y}`;
     },
   },
+
   methods: {
     onSave() {
       const data = {
-        value: this.value,
+        value: parseInt(this.value),
         category: this.category,
         date: this.date || this.getCurrentDate,
       };

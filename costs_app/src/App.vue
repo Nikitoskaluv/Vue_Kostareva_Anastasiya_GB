@@ -3,6 +3,7 @@
     <div :class="[$style.wrapper]">
       <header>
         <div :class="$style.header">My personal costs</div>
+        <h3>Total value: {{ getFPV }}</h3>
       </header>
       <main>
         <show-form-button @clicked="showForm" :visible="visible" />
@@ -13,9 +14,9 @@
         <payments-display :items="currentElements" />
         <pagination-comp
           @paginate="changePage"
-          :length="paymentsList.length"
-          :cur="page"
-          :n="count"
+          :pageCount="pageCount"
+          :currentPage="pageNumber"
+          :pageSize="pageSize"
         />
       </main>
     </div>
@@ -27,6 +28,7 @@ import AddPaymentForm from "./components/AddPaymentForm.vue";
 import PaymentsDisplay from "./components/PaymentsDisplay";
 import ShowFormButton from "./components/ShowFormButton";
 import PaginationComp from "./components/PaginationComp";
+import { mapMutations, mapGetters } from "vuex";
 
 export default {
   name: "App",
@@ -39,48 +41,45 @@ export default {
 
   data() {
     return {
-      paymentsList: [],
       visible: false,
-      page: 1,
-      count: 10,
+      pageNumber: 0,
+      pageSize: 10,
     };
   },
+
   methods: {
-    fetchData() {
-      const items = [];
-      for (let i = 1; i < 100; i++) {
-        items.push({
-          id: i,
-          date: "28.03.2020",
-          category: "Food",
-          value: 169,
-        });
-      }
-      return items;
-    },
+    ...mapMutations({
+      addData: "addPaymentListData",
+    }),
     addDataToPaymentList(item) {
-      item.id = this.paymentsList.length + 1;
-      this.paymentsList.push(item);
+      this.addData(item);
     },
     showForm() {
       console.log("кнопка работает");
       this.visible = !this.visible;
     },
     changePage(p) {
-      this.page = p;
-      console.log(p);
+      this.pageNumber = p;
+      this.$store.dispatch("fetchData", p);
     },
   },
   created() {
-    this.paymentsList = this.fetchData();
+    this.$store.dispatch("fetchData", 0);
   },
   computed: {
+    ...mapGetters({
+      paymentsList: "getPaymentsList",
+      category: "getCategoryList",
+      pagesCount: "getPageCount",
+    }),
     currentElements() {
-      const { count, page } = this;
-      return this.paymentsList.slice(
-        count * (page - 1),
-        count * (page - 1) + count
-      );
+      return this.paymentsList;
+    },
+    getFPV() {
+      return this.$store.getters.getFullPaymentValue;
+    },
+    pageCount() {
+      return this.pagesCount;
     },
   },
 };
