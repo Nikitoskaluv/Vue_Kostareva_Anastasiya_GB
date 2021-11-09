@@ -1,5 +1,12 @@
 <template>
   <div id="app">
+    <nav>
+      <a href="#dashboard">Dashboard</a> / <a href="#about">About</a> /
+      <a href="#notfound">404</a> /
+    </nav>
+    <dashboard v-if="pageName === 'dashboard'" />
+    <not-found v-if="pageName === 'notfound'" />
+    <about v-if="pageName === 'about'" />
     <div :class="[$style.wrapper]">
       <header>
         <div :class="$style.header">My personal costs</div>
@@ -29,6 +36,9 @@ import PaymentsDisplay from "./components/PaymentsDisplay";
 import ShowFormButton from "./components/ShowFormButton";
 import PaginationComp from "./components/PaginationComp";
 import { mapMutations, mapGetters } from "vuex";
+import Dashboard from "./views/Dashboard.vue";
+import NotFound from "./views/NotFound.vue";
+import About from "./views/About.vue";
 
 export default {
   name: "App",
@@ -37,6 +47,9 @@ export default {
     AddPaymentForm,
     ShowFormButton,
     PaginationComp,
+    Dashboard,
+    NotFound,
+    About,
   },
 
   data() {
@@ -44,6 +57,7 @@ export default {
       visible: false,
       pageNumber: 0,
       pageSize: 10,
+      pageName: "",
     };
   },
 
@@ -62,9 +76,16 @@ export default {
       this.pageNumber = p;
       this.$store.dispatch("fetchData", p);
     },
+    setPage() {
+      this.pageName = location.hash.slice(1);
+    },
   },
   created() {
     this.$store.dispatch("fetchData", 0);
+  },
+  mounted() {
+    this.setPage();
+    window.addEventListener("hashchange", this.setPage);
   },
   computed: {
     ...mapGetters({
