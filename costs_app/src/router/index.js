@@ -26,6 +26,21 @@ const routes = [
     path: '/not-found',
     name: 'NotFound',
     component: NotFound,
+  },
+  {
+    path: '/add/payment/Food',
+    component: Dashboard,
+    props: route => ({ addPaymentFoodValue: route.query.value, addPaymentFormVisibilityProp: true, addPaymentFormCategory: "Food" })
+  },
+  {
+    path: '/add/payment/Transport',
+    component: Dashboard,
+    props: route => ({ addPaymentTransportValue: route.query.value, addPaymentFormVisibilityProp: true, addPaymentFormCategory: "Transport" })
+  },
+  {
+    path: '/add/payment/Entertainment',
+    component: Dashboard,
+    props: route => ({ addPaymentEntertainmentValue: route.query.value, addPaymentFormVisibilityProp: true, addPaymentFormCategory: "Entertainment" })
   }
 
 

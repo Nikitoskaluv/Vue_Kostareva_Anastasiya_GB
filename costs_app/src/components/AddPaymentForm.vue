@@ -1,5 +1,5 @@
 <template>
-  <div class="form" v-if="visible">
+  <div class="form" v-if="shown">
     <input placeholder="Value" type="number" v-model="value" />
     <input placeholder="Category" v-model="category" />
     <select-category v-model="category" />
@@ -13,14 +13,13 @@ import SelectCategory from "./SelectCategory.vue";
 export default {
   components: { SelectCategory },
   name: "AddPaymentForm",
-  props: ["visible"],
-  data() {
-    return {
-      value: "",
-      category: "",
-      date: "",
-    };
+  props: {
+    shown: Boolean,
+    category: String,
+    value: String,
+    date: String,
   },
+
   computed: {
     getCurrentDate() {
       const today = new Date();

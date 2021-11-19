@@ -6,10 +6,16 @@
         <h3>Total value: {{ getFPV }}</h3>
       </header>
       <main>
-        <show-form-button @clicked="showForm" :visible="visible" />
+        <show-form-button
+          @clicked="showForm"
+          :visible="addPaymentFormVisibility"
+        />
         <add-payment-form
           @addNewPayment="addDataToPaymentList"
-          :visible="visible"
+          :category="addPaymentCategoty"
+          :value="addPaymentValue"
+          :shown="addPaymentFormVisibility"
+          :date="addPaymentFormDate"
         />
         <payments-display :items="currentElements" />
         <pagination-comp
@@ -37,10 +43,19 @@ export default {
     ShowFormButton,
     PaginationComp,
   },
-
+  props: {
+    addPaymentFoodValue: String,
+    addPaymentTransportValue: String,
+    addPaymentEntertainmentValue: String,
+    addPaymentFormVisibilityProp: Boolean,
+    addPaymentFormCategory: String,
+  },
   data() {
     return {
-      visible: false,
+      addPaymentFormVisibility: false,
+      addPaymentFormDate: "",
+      addPaymentCategoty: "",
+      addPaymentValue: "",
       pageNumber: 0,
       pageSize: 10,
     };
@@ -53,12 +68,28 @@ export default {
       this.addData(item);
     },
     showForm() {
-      console.log("кнопка работает");
-      this.visible = !this.visible;
+      this.addPaymentFormVisibility = !this.addPaymentFormVisibility;
     },
     changePage(p) {
       this.pageNumber = p;
       this.$store.dispatch("fetchData", p);
+    },
+    getCurrentDate() {
+      const today = new Date();
+      const d = today.getDate();
+      const m = today.getMonth() + 1;
+      const y = today.getFullYear();
+      return `${d}.${m}.${y}`;
+    },
+    checkFormAndSave() {
+      let item = {
+        value: parseInt(this.addPaymentValue),
+        category: this.addPaymentCategoty,
+      };
+      this.addDataToPaymentList(item);
+      this.addPaymentFormVisibility = false;
+      this.addPaymentCategoty = "";
+      this.addPaymentValue = "";
     },
   },
   computed: {
@@ -78,9 +109,30 @@ export default {
     },
   },
   mounted() {
+    console.log("f", this.addPaymentFoodValue);
+    console.log("t", this.addPaymentTransportValue);
+    console.log("e", this.addPaymentEntertainmentValue);
+    if (this.addPaymentFormVisibilityProp) {
+      this.addPaymentFormVisibility = true;
+      this.addPaymentFormDate = this.getCurrentDate();
+      this.addPaymentCategoty = this.addPaymentFormCategory;
+    }
+    if (this.addPaymentFoodValue) {
+      this.addPaymentValue = this.addPaymentFoodValue;
+      this.checkFormAndSave();
+    } else if (this.addPaymentTransportValue) {
+      this.addPaymentValue = this.addPaymentTransportValue;
+      this.checkFormAndSave();
+    } else if (this.addPaymentEntertainmentValue) {
+      this.addPaymentValue = this.addPaymentEntertainmentValue;
+      this.checkFormAndSave();
+    }
+
     const page = this.$route.params.page;
     if (page) {
-      this.pageNumber = Number(page);
+      this.changePage(Number(page) - 1);
+    } else {
+      this.changePage(0);
     }
   },
 };
