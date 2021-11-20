@@ -12,7 +12,13 @@ export default new Vuex.Store({
     pagesCount: 0,
     summ: 0
   },
+
   mutations: {
+    deletePaymentData(state, item) {
+      let rows = state.paymentsList;
+      let filteredRows = rows.filter(r => r.id !== item.id);
+      state.paymentsList = [...filteredRows];
+    },
     setPaymentListData(state, payload) {
       state.paymentsList = payload;
     },

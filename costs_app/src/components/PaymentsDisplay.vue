@@ -16,6 +16,9 @@
             <td>{{ item.date }}</td>
             <td>{{ item.category }}</td>
             <td>{{ item.value }}</td>
+            <td @click="contextMenu(item, $event)" style="cursor: pointer">
+              ...
+            </td>
           </tr>
         </tbody>
       </table>
@@ -30,6 +33,16 @@ export default {
     items: {
       type: Array,
       default: () => [],
+    },
+  },
+  methods: {
+    contextMenu(item, e) {
+      this.$ctxMenu.show(item, {
+        x: e.pageX,
+        y: e.pageY - 70,
+      });
+      e.preventDefault();
+      e.stopPropagation();
     },
   },
   data() {

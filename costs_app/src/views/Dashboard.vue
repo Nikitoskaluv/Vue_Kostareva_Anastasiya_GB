@@ -6,17 +6,11 @@
         <h3>Total value: {{ getFPV }}</h3>
       </header>
       <main>
-        <show-form-button
+        <!-- <show-form-button
           @clicked="showForm"
           :visible="addPaymentFormVisibility"
-        />
-        <add-payment-form
-          @addNewPayment="addDataToPaymentList"
-          :category="addPaymentCategoty"
-          :value="addPaymentValue"
-          :shown="addPaymentFormVisibility"
-          :date="addPaymentFormDate"
-        />
+        /> -->
+
         <payments-display :items="currentElements" />
         <pagination-comp
           @paginate="changePage"
@@ -24,14 +18,15 @@
           :currentPage="pageNumber"
           :pageSize="pageSize"
         />
+        <button @click="openModalAddPaymentForm">Add</button>
       </main>
     </div>
   </div>
 </template>
 <script>
-import AddPaymentForm from "../components/AddPaymentForm.vue";
+// import AddPaymentForm from "../components/AddPaymentForm.vue";
 import PaymentsDisplay from "../components/PaymentsDisplay.vue";
-import ShowFormButton from "../components/ShowFormButton.vue";
+// import ShowFormButton from "../components/ShowFormButton.vue";
 import PaginationComp from "../components/PaginationComp.vue";
 import { mapMutations, mapGetters } from "vuex";
 
@@ -39,8 +34,6 @@ export default {
   name: "Dashboard",
   components: {
     PaymentsDisplay,
-    AddPaymentForm,
-    ShowFormButton,
     PaginationComp,
   },
   props: {
@@ -52,6 +45,7 @@ export default {
   },
   data() {
     return {
+      addPaymentDialogVisibility: false,
       addPaymentFormVisibility: false,
       addPaymentFormDate: "",
       addPaymentCategoty: "",
@@ -66,9 +60,6 @@ export default {
     }),
     addDataToPaymentList(item) {
       this.addData(item);
-    },
-    showForm() {
-      this.addPaymentFormVisibility = !this.addPaymentFormVisibility;
     },
     changePage(p) {
       this.pageNumber = p;
@@ -90,6 +81,17 @@ export default {
       this.addPaymentFormVisibility = false;
       this.addPaymentCategoty = "";
       this.addPaymentValue = "";
+    },
+    openModalAddPaymentForm() {
+      this.$modal.show("payment", {
+        title: "Добавление платежа",
+        content: "AddPaymentForm",
+        data: {},
+      });
+      // this.$emit("openModalWindow", {
+      //   title: "Add payment cost",
+      //   content: "payment",
+      // });
     },
   },
   computed: {
