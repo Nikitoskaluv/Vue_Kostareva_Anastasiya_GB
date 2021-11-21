@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils';
-import TestComponet from './TestComponent.vue';
+import TestComponent from './TestComponent.vue';
 
-describe('TestComponenet', () => {
+describe('TestComponent', () => {
     test('Content from Props', () => {
-        const wrapper = mount(TestComponet, {
+        const wrapper = mount(TestComponent, {
             propsData: {
                 message: "Hello from test!"
             }

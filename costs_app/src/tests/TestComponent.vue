@@ -3,7 +3,7 @@
 </template>
 <script>
 export default {
-  name: "TestComponenet",
+  name: "TestComponent",
   props: {
     message: String,
   },

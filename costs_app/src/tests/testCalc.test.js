@@ -1,2 +1,3 @@
-import { mount } from "@vue/test-utils"
-import
+import { mount } from "@vue/test-utils";
+import CalcComponent from "../components/CalcComponent.vue";
+
