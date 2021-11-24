@@ -1,3 +1,5 @@
+
+
 import Vue from "vue";
 import Vuex from "vuex";
 const data = require("../assets/data.json");
@@ -37,7 +39,6 @@ export default new Vuex.Store({
         data[`page ${nextPageNumber}`] = [];
         data[`page ${nextPageNumber}`].push(payload);
       }
-
       state.pagesCount = Object.keys(data).length;
       let summ = 0;
       for (let page of Object.keys(data)) {
@@ -98,8 +99,11 @@ export default new Vuex.Store({
       });
     },
     upgradeData({ commit, dispatch }, payload) {
-      dispatch('fetchCategoryList')
+      dispatch('fetchCategoryList');
       commit('setPaymentListData', payload);
+    },
+    addData(context, payload) {
+      console.log(context, payload);
     }
   },
   getters: {

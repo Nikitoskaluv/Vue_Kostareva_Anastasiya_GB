@@ -27,7 +27,7 @@
       >
         {{ keyButton }}
       </button>
-      <button v-html="backSpace" @click="deleteNumber()">
+      <button v-html="backSpace" @click="deleteNumber()" name="backspace">
         {{ backSpace }}
       </button>
       <br />
@@ -37,6 +37,7 @@
         v-model="choose"
         name="radioChoose"
         value="operand1"
+        id="radio1"
       />
       <label for="firstInput">Первый операнд</label>
       <input
@@ -44,6 +45,7 @@
         v-model="choose"
         name="radioChoose"
         value="operand2"
+        id="radio2"
       />
       <label for="secondInput">Второй операнд</label>
     </div>
@@ -108,9 +110,7 @@ export default {
           break;
       }
     },
-    showKeybord() {
-      this.isChecked ? (this.showKeybord = true) : (this.showKeybord = false);
-    },
+
     plusFunction() {
       this.result = this.operand1 + this.operand2;
     },

@@ -9,7 +9,7 @@
 </template>
 <script>
 import SelectCategory from "./SelectCategory.vue";
-
+import { mapMutations } from "vuex";
 export default {
   components: { SelectCategory },
   name: "AddPaymentForm",
@@ -28,13 +28,19 @@ export default {
   },
 
   methods: {
+    ...mapMutations({
+      addData: "addPaymentListData",
+    }),
+    addDataToPaymentList(item) {
+      this.addData(item);
+    },
     onSave() {
       const data = {
         value: parseInt(this.data.value),
         category: this.data.category,
         date: this.data.date || this.getCurrentDate,
       };
-      this.$emit("addNewPayment", data);
+      this.addDataToPaymentList(data);
     },
   },
 };
