@@ -1,4 +1,4 @@
-<template >
+<template>
   <div>
     <button @click="openAuthForm">Need Auth</button>
   </div>
@@ -16,5 +16,4 @@ export default {
   },
 };
 </script>
-<style lang="sss" scoped>
-</style>
+<style lang="sss" scoped></style>

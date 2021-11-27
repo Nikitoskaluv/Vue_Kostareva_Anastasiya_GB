@@ -1,5 +1,3 @@
-
-
 import Vue from "vue";
 import Vuex from "vuex";
 const data = require("../assets/data.json");
@@ -12,13 +10,13 @@ export default new Vuex.Store({
     categoryList: [],
     pages: {},
     pagesCount: 0,
-    summ: 0
+    summ: 0,
   },
 
   mutations: {
     deletePaymentData(state, item) {
       let rows = state.paymentsList;
-      let filteredRows = rows.filter(r => r.id !== item.id);
+      let filteredRows = rows.filter((r) => r.id !== item.id);
       state.paymentsList = [...filteredRows];
     },
     setPaymentListData(state, payload) {
@@ -35,7 +33,7 @@ export default new Vuex.Store({
       if (pageItems.length < 10) {
         pageItems.push(payload);
       } else {
-        let nextPageNumber = parseInt(lastPageName.split(' ')[1]) + 1;
+        let nextPageNumber = parseInt(lastPageName.split(" ")[1]) + 1;
         data[`page ${nextPageNumber}`] = [];
         data[`page ${nextPageNumber}`].push(payload);
       }
@@ -58,11 +56,11 @@ export default new Vuex.Store({
     },
     setSumm(state, summ) {
       state.summ = summ;
-    }
+    },
   },
   actions: {
     fetchData({ commit, dispatch }, pageNumber) {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         let itemsFromState = this.state.pages[`${pageNumber}`];
         if (itemsFromState) {
           resolve(itemsFromState);
@@ -73,43 +71,44 @@ export default new Vuex.Store({
           }, 1000);
         }
       }).then(
-        items => {
+        (items) => {
           if (!this.state.pages[`${pageNumber}`]) {
-            commit('updatePages', { name: `${pageNumber}`, items: items });
+            commit("updatePages", { name: `${pageNumber}`, items: items });
           }
-          commit('setPagesCount', Object.keys(data).length);
-          dispatch('upgradeData', [...items]);
+          commit("setPagesCount", Object.keys(data).length);
+          dispatch("upgradeData", [...items]);
           let summ = 0;
           for (let page of Object.keys(data)) {
             console.log(page);
             summ += data[page].reduce((s, c) => s + c.value, 0);
           }
-          commit('setSumm', summ);
+          commit("setSumm", summ);
         },
-        err => console.error(err));
+        (err) => console.error(err)
+      );
     },
     fetchCategoryList({ commit }) {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
-          const items = ['Sport', 'Food', 'Education', 'Internet'];
+          const items = ["Sport", "Food", "Education", "Internet"];
           resolve(items);
         }, 500);
-      }).then(res => {
-        commit('setCategoryList', res);
+      }).then((res) => {
+        commit("setCategoryList", res);
       });
     },
     upgradeData({ commit, dispatch }, payload) {
-      dispatch('fetchCategoryList');
-      commit('setPaymentListData', payload);
+      dispatch("fetchCategoryList");
+      commit("setPaymentListData", payload);
     },
     addData(context, payload) {
       console.log(context, payload);
-    }
+    },
   },
   getters: {
-    getPaymentsList: state => state.paymentsList,
-    getCategoryList: state => state.categoryList,
-    getPageCount: state => state.pagesCount,
-    getFullPaymentValue: state => state.summ,
-  }
+    getPaymentsList: (state) => state.paymentsList,
+    getCategoryList: (state) => state.categoryList,
+    getPageCount: (state) => state.pagesCount,
+    getFullPaymentValue: (state) => state.summ,
+  },
 });

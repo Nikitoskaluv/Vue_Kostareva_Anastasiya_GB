@@ -79,7 +79,7 @@ export default {
   },
 };
 </script>
-<style lang="scss" >
+<style lang="scss">
 #app {
   height: 100%;
 }
@@ -107,6 +107,3 @@ button {
   margin: 30px auto;
 }
 </style>
-
-
-

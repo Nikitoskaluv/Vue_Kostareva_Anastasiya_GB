@@ -45,7 +45,7 @@ export default {
   },
 };
 </script>
-<style lang="scss" >
+<style lang="scss">
 .form {
   display: flex;
   flex-direction: column;
