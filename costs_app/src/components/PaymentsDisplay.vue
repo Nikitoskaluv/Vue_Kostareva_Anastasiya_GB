@@ -1,29 +1,28 @@
 <template>
-  <div class="wrapper">
-    <section>
-      <table cellspacing="0" cellpadding="0">
-        <thead>
-          <tr>
-            <th v-for="header in headers" :key="header">{{ header }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="items.length === 0">
-            <td>No data</td>
-          </tr>
-          <tr v-else v-for="(item, idx) in items" :key="idx">
-            <td>{{ item.id }}</td>
-            <td>{{ item.date }}</td>
-            <td>{{ item.category }}</td>
-            <td>{{ item.value }}</td>
-            <td @click="contextMenu(item, $event)" style="cursor: pointer">
-              ...
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-  </div>
+  <v-container>
+    <div class="wrapper">
+      <v-row>
+        <v-col :cols="1">#</v-col>
+        <v-col :cols="3">Date</v-col>
+        <v-col :cols="4">Category</v-col>
+        <v-col :cols="3">Value</v-col>
+        <v-col :cols="1">...</v-col>
+      </v-row>
+      <v-row v-for="(item, idx) in items" :key="idx">
+        <v-col :cols="1">{{ item.id }}</v-col>
+        <v-col :cols="3">{{ item.date }}</v-col>
+        <v-col :cols="4">{{ item.category }}</v-col>
+        <v-col :cols="3">{{ item.value }}</v-col>
+        <v-col :cols="1">...</v-col>
+      </v-row>
+
+      <tr v-if="items.length === 0">
+        <td>No data</td>
+      </tr>
+
+      <td @click="contextMenu(item, $event)" style="cursor: pointer">...</td>
+    </div>
+  </v-container>
 </template>
 
 <script>

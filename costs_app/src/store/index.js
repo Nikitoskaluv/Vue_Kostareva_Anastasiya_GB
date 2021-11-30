@@ -8,8 +8,8 @@ export default new Vuex.Store({
   state: {
     paymentsList: [],
     categoryList: [],
-    pages: {},
     pagesCount: 0,
+    serverData: data,
     summ: 0,
   },
 
@@ -23,66 +23,28 @@ export default new Vuex.Store({
       state.paymentsList = payload;
     },
     addPaymentListData(state, payload) {
-      let lastPageName = "page 0";
-      let pageNames = Object.keys(data);
-      if (pageNames) {
-        lastPageName = pageNames[pageNames.length - 1];
-      }
-      let pageItems = data[lastPageName];
-      payload.id = pageItems[pageItems.length - 1].id + 1;
-      if (pageItems.length < 10) {
-        pageItems.push(payload);
-      } else {
-        let nextPageNumber = parseInt(lastPageName.split(" ")[1]) + 1;
-        data[`page ${nextPageNumber}`] = [];
-        data[`page ${nextPageNumber}`].push(payload);
-      }
-      state.pagesCount = Object.keys(data).length;
-      let summ = 0;
-      for (let page of Object.keys(data)) {
-        console.log(page);
-        summ += data[page].reduce((s, c) => s + c.value, 0);
-      }
-      state.summ = summ;
+      payload.id = data.length + 1;
+      state.serverData.push(payload);
     },
     setCategoryList(state, payload) {
       state.categoryList = payload;
-    },
-    updatePages(state, payload) {
-      state.pages[payload.name] = payload.items;
-    },
-    setPagesCount(state, count) {
-      state.pagesCount = count;
     },
     setSumm(state, summ) {
       state.summ = summ;
     },
   },
   actions: {
-    fetchData({ commit, dispatch }, pageNumber) {
+    fetchData({ state, dispatch }, options) {
       return new Promise((resolve) => {
-        let itemsFromState = this.state.pages[`${pageNumber}`];
-        if (itemsFromState) {
-          resolve(itemsFromState);
-        } else {
-          setTimeout(() => {
-            const itemsFromServer = data["page " + (pageNumber + 1)];
-            resolve(itemsFromServer);
-          }, 1000);
-        }
+
+        setTimeout(() => {
+          const itemsFromServer = state.serverData.slice(
+            (options.page - 1) * options.itemsPerPage, options.page * options.itemsPerPage);
+          resolve(itemsFromServer);
+        }, 600);
       }).then(
         (items) => {
-          if (!this.state.pages[`${pageNumber}`]) {
-            commit("updatePages", { name: `${pageNumber}`, items: items });
-          }
-          commit("setPagesCount", Object.keys(data).length);
           dispatch("upgradeData", [...items]);
-          let summ = 0;
-          for (let page of Object.keys(data)) {
-            console.log(page);
-            summ += data[page].reduce((s, c) => s + c.value, 0);
-          }
-          commit("setSumm", summ);
         },
         (err) => console.error(err)
       );
@@ -106,6 +68,7 @@ export default new Vuex.Store({
     },
   },
   getters: {
+    getTotal: (state) => state.serverData.length,
     getPaymentsList: (state) => state.paymentsList,
     getCategoryList: (state) => state.categoryList,
     getPageCount: (state) => state.pagesCount,

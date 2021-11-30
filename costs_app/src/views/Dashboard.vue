@@ -1,40 +1,51 @@
 <template>
-  <div>
-    <div :class="[$style.wrapper]">
-      <header>
-        <div :class="$style.header">My personal costs</div>
-        <h3>Total value: {{ getFPV }}</h3>
-      </header>
-      <main>
-        <!-- <show-form-button
-          @clicked="showForm"
-          :visible="addPaymentFormVisibility"
-        /> -->
+  <v-container>
+    <v-row>
+      <v-col>
+        <div class="text-h5 text-sm-h3 pb-2">My presonal cost</div>
+        <v-dialog v-model="dialog" width="500">
+          <template v-slot:activator="{ on }">
+            <v-btn color="teal" dark v-on="on"
+              >ADD NEW COST<v-icon>mdi-plus</v-icon></v-btn
+            >
+          </template>
+          <add-payment-form :data="dialogData" @close="closeDialog" />
+        </v-dialog>
 
-        <payments-display :items="currentElements" />
-        <pagination-comp
-          @paginate="changePage"
-          :pageCount="pageCount"
-          :currentPage="pageNumber"
-          :pageSize="pageSize"
-        />
-        <button @click="openModalAddPaymentForm">Add</button>
-      </main>
-    </div>
-  </div>
+        <v-data-table
+          dense
+          :options.sync="options"
+          :server-items-length="total"
+          :headers="headers"
+          :items="paymentsList"
+          item-key="name"
+          class="elevation-1 mt-4"
+        >
+          <template v-slot:[`item.actions`]="{ item }">
+            <v-icon small class="mr-2" @click="editItem(item)">
+              mdi-pencil
+            </v-icon>
+            <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+          </template>
+        </v-data-table>
+      </v-col>
+      <v-col>
+        <div class="text-h5 text-sm-h3 pb-2">Chart</div>
+        <d-chart :chData="chartData"></d-chart>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 <script>
-// import AddPaymentForm from "../components/AddPaymentForm.vue";
-import PaymentsDisplay from "../components/PaymentsDisplay.vue";
-// import ShowFormButton from "../components/ShowFormButton.vue";
-import PaginationComp from "../components/PaginationComp.vue";
 import { mapMutations, mapGetters } from "vuex";
+import AddPaymentForm from "../components/AddPaymentForm.vue";
 
+import DChart from "../components/DChart.vue";
 export default {
   name: "Dashboard",
   components: {
-    PaymentsDisplay,
-    PaginationComp,
+    AddPaymentForm,
+    DChart,
   },
   props: {
     addPaymentFoodValue: String,
@@ -45,26 +56,57 @@ export default {
   },
   data() {
     return {
+      dialog: false,
+      chartData: {},
+      editedIndex: -1,
       addPaymentDialogVisibility: false,
       addPaymentFormVisibility: false,
       addPaymentFormDate: "",
       addPaymentCategoty: "",
       addPaymentValue: "",
-      pageNumber: 0,
-      pageSize: 10,
+      options: {},
+      dialogData: {},
+      headers: [
+        {
+          text: "#",
+          align: "start",
+          sortable: false,
+          value: "id",
+        },
+        { text: "Date", value: "date", sortable: false },
+        { text: "Category", value: "category", sortable: false },
+        { text: "Value", value: "value", sortable: false },
+        { text: "Actions", value: "actions", sortable: false },
+      ],
     };
   },
   methods: {
     ...mapMutations({
       addData: "addPaymentListData",
     }),
+
     addDataToPaymentList(item) {
       this.addData(item);
     },
-    changePage(p) {
-      this.pageNumber = p;
-      this.$store.dispatch("fetchData", p);
+    closeDialog() {
+      if (this.editedIndex < 0) {
+        this.addDataToPaymentList(this.dialogData);
+      }
+      this.dialog = false;
+      this.$nextTick(() => {
+        this.dialogData = {};
+        this.editedIndex = -1;
+      });
     },
+    editItem(item) {
+      this.editedIndex = this.paymentsList.indexOf(item);
+      this.dialogData = item;
+      this.dialog = true;
+    },
+    deleteItem(item) {
+      this.$store.commit("deletePaymentData", item);
+    },
+
     getCurrentDate() {
       const today = new Date();
       const d = today.getDate();
@@ -82,60 +124,47 @@ export default {
       this.addPaymentCategoty = "";
       this.addPaymentValue = "";
     },
-    openModalAddPaymentForm() {
-      this.$modal.show("payment", {
-        title: "Добавление платежа",
-        content: "AddPaymentForm",
-        data: {},
-      });
-      // this.$emit("openModalWindow", {
-      //   title: "Add payment cost",
-      //   content: "payment",
-      // });
+    getDataFromApi() {
+      this.$store.dispatch("fetchData", this.options);
     },
   },
   computed: {
     ...mapGetters({
       paymentsList: "getPaymentsList",
       category: "getCategoryList",
-      pagesCount: "getPageCount",
+      total: "getTotal",
     }),
-    currentElements() {
-      return this.paymentsList;
+  },
+  watch: {
+    paymentsList: {
+      handler(v) {
+        const s = {
+          Sport: 0,
+          Food: 0,
+          Education: 0,
+          Internet: 0,
+        };
+
+        v.forEach((e) => {
+          s[e.category] += e.value;
+        });
+
+        this.chartData = s;
+      },
+      deep: true,
     },
-    getFPV() {
-      return this.$store.getters.getFullPaymentValue;
+    options: {
+      handler() {
+        this.getDataFromApi();
+      },
+      deep: true,
     },
-    pageCount() {
-      return this.pagesCount;
+    dialogDelete(val) {
+      val || this.closeDelete();
     },
   },
   mounted() {
-    console.log("f", this.addPaymentFoodValue);
-    console.log("t", this.addPaymentTransportValue);
-    console.log("e", this.addPaymentEntertainmentValue);
-    if (this.addPaymentFormVisibilityProp) {
-      this.addPaymentFormVisibility = true;
-      this.addPaymentFormDate = this.getCurrentDate();
-      this.addPaymentCategoty = this.addPaymentFormCategory;
-    }
-    if (this.addPaymentFoodValue) {
-      this.addPaymentValue = this.addPaymentFoodValue;
-      this.checkFormAndSave();
-    } else if (this.addPaymentTransportValue) {
-      this.addPaymentValue = this.addPaymentTransportValue;
-      this.checkFormAndSave();
-    } else if (this.addPaymentEntertainmentValue) {
-      this.addPaymentValue = this.addPaymentEntertainmentValue;
-      this.checkFormAndSave();
-    }
-
-    const page = this.$route.params.page;
-    if (page) {
-      this.changePage(Number(page) - 1);
-    } else {
-      this.changePage(0);
-    }
+    this.getDataFromApi();
   },
 };
 </script>
